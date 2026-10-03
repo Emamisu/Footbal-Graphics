@@ -22,7 +22,7 @@ jobs:
         run: |
           rm -rf build
           mkdir build
-          unzip -q football-graphics-v0.2.1.zip -d build
+          unzip -q football-graphics-v0.2.1-github.zip -d build
 
       - name: Install dependencies
         working-directory: build/app
@@ -55,7 +55,7 @@ jobs:
         run: |
           if (Test-Path build) { Remove-Item -Recurse -Force build }
           New-Item -ItemType Directory -Path build | Out-Null
-          Expand-Archive -Path football-graphics-v0.2.1.zip -DestinationPath build
+          Expand-Archive -Path football-graphics-v0.2.1-github.zip -DestinationPath build
 
       - name: Install dependencies
         working-directory: build/app
