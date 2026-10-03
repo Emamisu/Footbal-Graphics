@@ -1,0 +1,73 @@
+name: Build installers
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-macos:
+    runs-on: macos-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Extract v0.2.1
+        run: |
+          rm -rf build
+          mkdir build
+          unzip -q football-graphics-v0.2.1.zip -d build
+
+      - name: Install dependencies
+        working-directory: build/app
+        run: npm install
+
+      - name: Build DMG
+        working-directory: build/app
+        run: npx electron-builder --mac dmg --publish never
+
+      - name: Upload DMG
+        uses: actions/upload-artifact@v4
+        with:
+          name: Football-Graphics-v0.2.1-macOS
+          path: build/app/dist/*.dmg
+          if-no-files-found: error
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Extract v0.2.1
+        shell: pwsh
+        run: |
+          if (Test-Path build) { Remove-Item -Recurse -Force build }
+          New-Item -ItemType Directory -Path build | Out-Null
+          Expand-Archive -Path football-graphics-v0.2.1.zip -DestinationPath build
+
+      - name: Install dependencies
+        working-directory: build/app
+        run: npm install
+
+      - name: Build Windows installer
+        working-directory: build/app
+        run: npx electron-builder --win nsis --publish never
+
+      - name: Upload EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: Football-Graphics-v0.2.1-Windows
+          path: build/app/dist/*.exe
+          if-no-files-found: error
